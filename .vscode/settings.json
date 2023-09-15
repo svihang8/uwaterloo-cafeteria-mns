@@ -1,0 +1,32 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "database-test-cafeteria.ctqsjdfmbick.ca-central-1.rds.amazonaws.com",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "awscafeteriadatabase",
+            "database": "cafeteria",
+            "username": "admin",
+            "password": "infernape"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "database": "cafeteria",
+            "username": "root",
+            "password": "Infernape8%",
+            "name": "cafeterialocal"
+        }
+    ]
+}

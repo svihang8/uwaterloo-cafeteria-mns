@@ -2,14 +2,6 @@ CREATE DATABASE IF NOT EXISTS cafeteria;
 
 USE cafeteria;
 
-DROP TABLE IF EXISTS Users;
--- CREATE TABLE IF NOT EXISTS Users(
---     id INT PRIMARY KEY AUTO_INCREMENT,
---     firstname VARCHAR(255) NOT NULL,
---     phonenumber CHAR(10) UNIQUE NOT NULL,
---     notificationtime TIME(0) DEFAULT '00:00:00'
--- );
-
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS DishIngredient;
 SET FOREIGN_KEY_CHECKS = 1;
@@ -56,5 +48,15 @@ DROP TABLE IF EXISTS Allergies;
 --     ingredient_id INT
 -- );
 
+--@block
 
+DROP TABLE IF EXISTS Users;
+-- CREATE TABLE IF NOT EXISTS Users(
+--     id INT PRIMARY KEY AUTO_INCREMENT,
+--     firstname VARCHAR(255) NOT NULL,
+--     phonenumber CHAR(10) UNIQUE NOT NULL,
+--     notificationtime TIME(0) DEFAULT '00:00:00'
+-- );
 
+--@block
+SELECT notificationtime FROM Users WHERE firstname = 'Vihang'

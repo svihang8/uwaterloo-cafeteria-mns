@@ -1,13 +1,12 @@
 import os
 from dotenv import load_dotenv
 import mysql.connector
-import pymysql
 import pandas as pd
-
+from datetime import datetime
 
 class Database:
    load_dotenv()
-   db = mysql.connect.connector(
+   db = mysql.connector.connect(
       host = os.getenv('DATABASE_HOST'),
       user=os.getenv('DATABASE_USER'),
       password=os.getenv('DATABASE_PASSWORD'),
@@ -19,6 +18,88 @@ class Database:
    def __init__(self, df = pd.DataFrame()):
       self.df = df
       print(self.db)
+   
+   def _get_ingredients(self):
+      sql = "SELECT ingredient FROM Ingredients"
+      self.cursor.execute(sql)
+      ingredients = []
+      for ingredient in self.cursor.fetchall():
+         print(ingredient)
+         ingredients.append(ingredient[0])
+      return ingredients
+
+
+   def _create_user(self, name, phonenumber, notificationtime = '00:00:00', allergies = []):
+      if not name or not phonenumber:
+         return None
+      sql = "CREATE TABLE IF NOT EXISTS Users(id INT PRIMARY KEY AUTO_INCREMENT, firstname VARCHAR(255) UNIQUE NOT NULL, phonenumber CHAR(10) UNIQUE NOT NULL, notificationtime TIME(0) DEFAULT '00:00:00')"
+      self.cursor.execute(sql)
+      sql = "INSERT IGNORE INTO Users (firstname, phonenumber, notificationtime) VALUES (%s, %s, %s)"
+      val = (name, phonenumber, notificationtime)
+      self.cursor.execute(sql, val)
+      sql = "CREATE TABLE IF NOT EXISTS Allergies(id INT PRIMARY KEY AUTO_INCREMENT, user_id INT, ingredient_id INT)"
+      self.cursor.execute(sql)
+      sql = "SELECT id FROM Users WHERE firstname = %s"
+      val = (name, )
+      self.cursor.execute(sql, val)
+      user_id = self.cursor.fetchone()[0]
+      for i in range(len(allergies)):
+         sql = "SELECT id from Ingredients WHERE ingredient = %s"
+         val = (allergies[i], )
+         self.cursor.execute(sql, val)
+         ingredient_id = self.cursor.fetchone()[0]
+         sql = "INSERT IGNORE INTO Allergies (user_id, ingredient_id) VALUES (%s, %s)"
+         val = (user_id, ingredient_id)
+         self.cursor.execute(sql, val)
+      self.db.commit()
+
+   def _get_notification_data(self, time = "00:00:00", date = datetime.now()):
+       sql = "SELECT * FROM Users WHERE notificationtime = %s"
+       val = (time, )
+       self.cursor.execute(sql, val)
+       users = self.cursor.fetchall()
+       data = []
+       for user in users:
+          user_name = user[1]
+          user_phonenumber = user[2]
+          # sql query to get all allergies of user.
+          sql = "SELECT ingredient_id FROM Allergies WHERE user_id = %s"
+          val = (user[0], )
+          self.cursor.execute(sql, val)
+          allergens_ids = self.cursor.fetchall()
+          # get dishes containing allergen. return list of dishes 
+          dishes = []
+          for allergen_id in allergens_ids:
+             sql = "SELECT dish_id FROM DishIngredient WHERE ingredient_id = %s"
+             val = (allergen_id[0], )
+             self.cursor.execute(sql, val)
+             dishes_ids = self.cursor.fetchall()
+             for dish_id in dishes_ids:
+                sql = "SELECT * FROM Menu WHERE dish_id = %s AND date = %s"
+                date = datetime.today().replace(microsecond=0, second=0, minute=0, hour=0)
+                val = (dish_id[0], date)
+                self.cursor.execute(sql, val)
+                current_dishes = self.cursor.fetchall()
+                for current_dish in current_dishes:
+                   sql = "SELECT dish FROM Dishes WHERE id = %s"
+                   val = (current_dish[2], )
+                   self.cursor.execute(sql, val)
+                   dish_names = self.cursor.fetchall()
+                   if dish_names:
+                     for dish_name in dish_names:
+                        dishes.append(dish_name[0])
+          dishes = list(dict.fromkeys(dishes))
+          data.append({
+             'name' : user_name,
+             'phonenumber' : user_phonenumber,
+             'dishes' : ', '.join(dishes)
+          })
+       return data
+                   
+                
+
+
+
    
    def _handle_data(self):
       dish_df = self.df[['name', 'url']].drop_duplicates().reset_index()
