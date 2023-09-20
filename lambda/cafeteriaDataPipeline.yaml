@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An AWS Serverless Specification template describing your function.
+Resources:
+  cafeteriaDataPipeline:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: .
+      Description: ''
+      MemorySize: 128
+      Timeout: 180
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.11
+      Architectures:
+        - x86_64
+      EventInvokeConfig:
+        MaximumEventAgeInSeconds: 21600
+        MaximumRetryAttempts: 2
+      EphemeralStorage:
+        Size: 512
+      Environment:
+        Variables:
+          BASE_URL: >-
+            https://uwaterloo.ca/food-services/locations-and-hours/daily-menu?field_uw_fs_dm_date_value%5Bvalue%5D%5Bdate%5D=
+          DATABASE_DATABASE: cafeteria
+          DATABASE_HOST: database-test-cafeteria.ctqsjdfmbick.ca-central-1.rds.amazonaws.com
+          DATABASE_PASSWORD: infernape
+          DATABASE_USER: admin
+          ITEM_BASE_URL: 'https://uwaterloo.ca/'
+      Layers:
+        - >-
+          arn:aws:lambda:ca-central-1:770693421928:layer:Klayers-p311-beautifulsoup4:1
+        - >-
+          arn:aws:lambda:ca-central-1:770693421928:layer:Klayers-p311-mysql-connector-python:1
+        - 'arn:aws:lambda:ca-central-1:770693421928:layer:Klayers-p311-pandas:2'
+      Role: >-
+        arn:aws:iam::231388024371:role/service-role/cafeteriaDataPipeline-role-62vf53hb
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: Auto
+      SnapStart:
+        ApplyOn: None
+      PackageType: Zip

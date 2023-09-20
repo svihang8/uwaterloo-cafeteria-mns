@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An AWS Serverless Specification template describing your function.
+Resources:
+  cafeteriaNotification:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: .
+      Description: ''
+      MemorySize: 128
+      Timeout: 180
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      EventInvokeConfig:
+        MaximumEventAgeInSeconds: 21600
+        MaximumRetryAttempts: 2
+      EphemeralStorage:
+        Size: 512
+      Environment:
+        Variables:
+          DATABASE_DATABASE: cafeteria
+          DATABASE_HOST: database-test-cafeteria.ctqsjdfmbick.ca-central-1.rds.amazonaws.com
+          DATABASE_PASSWORD: infernape
+          DATABASE_USER: admin
+          account_sid: AC9bd99fb335724f3ee5789ba55c1fa361
+          auth_token: 26ab824d1b179430eda3f227ec6cc534
+          twilio_phone: '+12075033620'
+      Layers:
+        - 'arn:aws:lambda:ca-central-1:770693421928:layer:Klayers-p39-twilio:19'
+        - >-
+          arn:aws:lambda:ca-central-1:770693421928:layer:Klayers-p39-mysql-connector-python:6
+      Role: >-
+        arn:aws:iam::231388024371:role/service-role/cafeteriaNotification-role-3td9n1sq
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: Auto
+      SnapStart:
+        ApplyOn: None
+      PackageType: Zip
